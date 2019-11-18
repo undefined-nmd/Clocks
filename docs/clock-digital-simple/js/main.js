@@ -1,4 +1,4 @@
-let clock, font;
+let clock, font, hue = 0;
 
 function preload() {
   font = loadFont('./fonts/RobotoMono-Bold.ttf');
@@ -7,13 +7,17 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(0);
+  colorMode(HSB, 360, 100, 100);
 
   const s = Math.min(width, height);
-  clock = new DigitalClock({ boundingBox: { x: width / 2, y: height / 2, w: s, h: s }, timeZone: -1 });
+  clock = new DigitalClock({ boundingBox: { x: width / 2, y: height / 2, w: s, h: s }, timeZone: -1, txtColor: color(hue, 50, 100)  });
+
+  frameRate(60);
 }
 
 function draw() {
-  background(0);
+  hue = round(random(0, 360));
+  background(color(hue, 50, 20));
 
   update();
   display();
@@ -22,11 +26,12 @@ function draw() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   const s = Math.min(width, height);
-  clock = new DigitalClock({ boundingBox: { x: width / 2, y: height / 2, w: s, h: s }, timeZone: -1 });
+  clock = new DigitalClock({ boundingBox: { x: width / 2, y: height / 2, w: s, h: s }, timeZone: -1, txtColor: color(hue, 50, 100) });
 }
 
 
 function update() {
+  clock.txtColor = color(hue, 50, 100);
   clock.update();
 }
 
@@ -34,9 +39,10 @@ function display() {
   clock.display();
 }
 
-function DigitalClock({ boundingBox, timeZone }) {
+function DigitalClock({ boundingBox, timeZone, txtColor }) {
   this.boundingBox = boundingBox;
   this.timeZone = timeZone;
+  this.txtColor = txtColor;
   this.myDate = new Date();
 
   this.update = () => {
@@ -60,13 +66,12 @@ function DigitalClock({ boundingBox, timeZone }) {
       w = textWidth(word);
     } while (w < width / 2);
 
-    fill(255);
+    fill(this.txtColor);
     text(word, this.boundingBox.x, this.boundingBox.y);
   }
 
   function toDigits(part, n) {
     part = String(part);
-    console.log(part.length);
     while (part.length < n) {
       part = '0' + part;
     }
